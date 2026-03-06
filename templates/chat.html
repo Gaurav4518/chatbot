@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>MedAI | Premium Medical Assistant</title>
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<!-- JQuery -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<!-- Custom CSS -->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}" />
+</head>
+
+<body>
+	<div class="container-fluid">
+		<div class="chat-wrapper">
+			<!-- Header -->
+			<header class="chat-header">
+				<div class="bot-avatar-container">
+					<img src="{{ url_for('static', filename='avatar.png') }}"
+						onerror="this.src='https://cdn-icons-png.flaticon.com/512/387/387569.png'" alt="Medical Bot"
+						class="bot-avatar">
+					<span class="status-indicator"></span>
+				</div>
+				<div class="header-info">
+					<h2>MedAI Assistant</h2>
+					<p>Clinical Intelligence v1.0 • Online</p>
+				</div>
+			</header>
+
+			<!-- Chat Messages -->
+			<main id="messageFormeight" class="chat-body">
+				<div class="message-bot message">
+					<div class="bubble bubble-bot">
+						Hello! I am your MedAI assistant. I can help you understand medical conditions, treatments, and
+						general health information. How can I assist you today?
+						<span class="time">Just now</span>
+					</div>
+				</div>
+			</main>
+
+			<!-- Footer / Input -->
+			<footer class="chat-footer">
+				<form id="messageArea">
+					<div class="input-container">
+						<input type="text" id="text" name="msg"
+							placeholder="Ask about symptoms, conditions, or treatments..." autocomplete="off"
+							required />
+						<button type="submit" id="send" class="send-button">
+							<i class="fa-solid fa-paper-plane"></i>
+						</button>
+					</div>
+				</form>
+			</footer>
+		</div>
+	</div>
+
+	<script>
+		$(document).ready(function () {
+			function scrollToBottom() {
+				var chatBody = document.getElementById("messageFormeight");
+				chatBody.scrollTop = chatBody.scrollHeight;
+			}
+
+			$("#messageArea").on("submit", function (event) {
+				event.preventDefault();
+
+				const date = new Date();
+				const str_time = date.getHours() + ":" + String(date.getMinutes()).padStart(2, '0');
+				var rawText = $("#text").val();
+
+				// User Message
+				var userHtml = `
+                    <div class="message message-user">
+                        <div class="bubble bubble-user">
+                            ${rawText}
+                            <span class="time">${str_time}</span>
+                        </div>
+                    </div>
+                `;
+
+				$("#text").val("");
+				$("#messageFormeight").append(userHtml);
+				scrollToBottom();
+
+				// AJAX Request
+				$.ajax({
+					data: { msg: rawText },
+					type: "POST",
+					url: "/get",
+				}).done(function (data) {
+					var botHtml = `
+                        <div class="message message-bot">
+                            <div class="bubble bubble-bot">
+                                ${data}
+                                <span class="time">${str_time}</span>
+                            </div>
+                        </div>
+                    `;
+					$("#messageFormeight").append(botHtml);
+					scrollToBottom();
+				});
+			});
+		});
+	</script>
+</body>
+
+</html>
