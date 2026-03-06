@@ -30,21 +30,18 @@ MedAI is a professional-grade medical assistant built using a Retrieval-Augmente
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/Gaurav4518/Medical_Chatbot.git
-cd Medical_Chatbot
+git clone https://github.com/Gaurav4518/chatbot.git
+cd chatbot
 ```
 
 ### 2. Create a Virtual Environment
 ```bash
 python -m venv venv
 ```
-**Activate it:**
-- **Windows:** `.\venv\Scripts\activate`
-- **macOS/Linux:** `source venv/bin/activate`
 
 ### 3. Install Dependencies
 ```bash
-pip install -r requirements.txt
+.\venv\Scripts\pip install langchain==0.3.15 langchain-community==0.3.15 langchain-core==0.3.31 langchain-groq==0.2.2 langchain-pinecone==0.2.1 langchain-text-splitters==0.3.4 langchain-openai==0.2.13 flask pypdf python-dotenv sentence-transformers
 ```
 
 ### 4. Environment Variables
@@ -57,7 +54,7 @@ GROQ_API_KEY = "your_groq_api_key"
 ### 5. Indexing the Medical Data
 Ensure your medical PDF is in the `data/` folder, then run:
 ```bash
-python store_index.py
+.\venv\Scripts\python store_index.py
 ```
 
 ---
@@ -65,7 +62,7 @@ python store_index.py
 ## 🏃 Running the Application
 To start the chatbot, run:
 ```bash
-python app.py
+.\venv\Scripts\python app.py
 ```
 Open your browser and navigate to: `http://localhost:8080`
 
