@@ -261,6 +261,52 @@ input::placeholder {
     transform: scale(0.95);
 }
 
+/* Upload Button Styles */
+.upload-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+    border: 1px dashed var(--glass-border);
+}
+
+.upload-btn:hover {
+    color: var(--primary);
+    border-color: var(--primary);
+    background: rgba(14, 165, 233, 0.05);
+}
+
+.upload-status {
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    text-align: center;
+    color: var(--text-muted);
+    display: none;
+    padding: 0.4rem;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.4);
+}
+
+.upload-status.success {
+    color: var(--success);
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.upload-status.error {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
 /* Typing Indicator (Custom for future use) */
 .typing {
     display: flex;

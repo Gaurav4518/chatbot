@@ -45,6 +45,19 @@
 			<footer class="chat-footer">
 				<form id="messageArea">
 					<div class="input-container">
+						<!-- File Upload -->
+						<div class="upload-controls">
+							<label for="pdf-upload" class="upload-btn" title="Upload Single PDF">
+								<i class="fa-solid fa-file-pdf"></i>
+							</label>
+							<input type="file" id="pdf-upload" accept=".pdf" style="display: none;" />
+
+							<label for="folder-upload" class="upload-btn" title="Upload Folder of PDFs">
+								<i class="fa-solid fa-folder-plus"></i>
+							</label>
+							<input type="file" id="folder-upload" webkitdirectory directory multiple style="display: none;" />
+						</div>
+						
 						<input type="text" id="text" name="msg"
 							placeholder="Ask about symptoms, conditions, or treatments..." autocomplete="off"
 							required />
@@ -53,6 +66,7 @@
 						</button>
 					</div>
 				</form>
+				<div id="upload-status" class="upload-status"></div>
 			</footer>
 		</div>
 	</div>
@@ -63,6 +77,74 @@
 				var chatBody = document.getElementById("messageFormeight");
 				chatBody.scrollTop = chatBody.scrollHeight;
 			}
+
+			// File Upload Logic
+			$("#pdf-upload").on("change", function () {
+				var file = this.files[0];
+				if (!file) return;
+
+				var formData = new FormData();
+				formData.append("file", file);
+
+				$("#upload-status").text("⏳ Indexing PDF... Please wait (this may take a minute)").fadeIn();
+				$(".upload-btn").css("opacity", "0.5").css("pointer-events", "none");
+
+				$.ajax({
+					url: "/upload",
+					type: "POST",
+					data: formData,
+					processData: false,
+					contentType: false,
+					success: function (response) {
+						$("#upload-status").text("✅ " + response).addClass("success");
+						setTimeout(() => {
+							$("#upload-status").fadeOut(() => {
+								$("#upload-status").removeClass("success").text("");
+							});
+							$(".upload-btn").css("opacity", "1").css("pointer-events", "auto");
+						}, 5000);
+					},
+					error: function () {
+						$("#upload-status").text("❌ Upload failed. Please try again.").addClass("error");
+						$(".upload-btn").css("opacity", "1").css("pointer-events", "auto");
+					}
+				});
+			});
+
+			// Folder Upload Logic
+			$("#folder-upload").on("change", function () {
+				var files = this.files;
+				if (files.length === 0) return;
+
+				var formData = new FormData();
+				for (var i = 0; i < files.length; i++) {
+					formData.append("files[]", files[i]);
+				}
+
+				$("#upload-status").text("⏳ Indexing Folder... Please wait").fadeIn();
+				$(".upload-btn").css("opacity", "0.5").css("pointer-events", "none");
+
+				$.ajax({
+					url: "/upload_folder",
+					type: "POST",
+					data: formData,
+					processData: false,
+					contentType: false,
+					success: function (response) {
+						$("#upload-status").text("✅ " + response).addClass("success");
+						setTimeout(() => {
+							$("#upload-status").fadeOut(() => {
+								$("#upload-status").removeClass("success").text("");
+							});
+							$(".upload-btn").css("opacity", "1").css("pointer-events", "auto");
+						}, 5000);
+					},
+					error: function () {
+						$("#upload-status").text("❌ Folder upload failed.").addClass("error");
+						$(".upload-btn").css("opacity", "1").css("pointer-events", "auto");
+					}
+				});
+			});
 
 			$("#messageArea").on("submit", function (event) {
 				event.preventDefault();
