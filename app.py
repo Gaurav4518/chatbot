@@ -105,8 +105,15 @@ def upload_file():
         return "No selected file"
     
     if file and file.filename.endswith('.pdf'):
-        filename = secure_filename(file.filename)
+        # Extract just the file name, ignoring any folder paths from the browser
+        clean_name = file.filename.replace('\\', '/').split('/')[-1]
+        filename = secure_filename(clean_name)
         path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        # PREVENT DUPLICATES: Check if file already exists
+        if os.path.exists(path):
+            return f"File '{filename}' has already been uploaded and indexed."
+            
         file.save(path)
         
         result = process_and_index_pdfs(
@@ -128,11 +135,20 @@ def upload_folder():
     
     files = request.files.getlist('files[]')
     uploaded_file_paths = []
+    skipped_files = 0
     
     for file in files:
         if file and file.filename.endswith('.pdf'):
-            filename = secure_filename(file.filename)
+            # Extract just the file name, ignoring any folder paths from the browser
+            clean_name = file.filename.replace('\\', '/').split('/')[-1]
+            filename = secure_filename(clean_name)
             path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            
+            # PREVENT DUPLICATES: Check if file already exists
+            if os.path.exists(path):
+                skipped_files += 1
+                continue
+                
             file.save(path)
             uploaded_file_paths.append(path)
     
@@ -144,7 +160,13 @@ def upload_folder():
         )
         # Re-initialize chain after new data is indexed
         init_rag_chain()
-        return f"Uploaded {len(uploaded_file_paths)} PDFs. {result}"
+        msg = f"Uploaded and indexed {len(uploaded_file_paths)} new PDFs. {result}"
+        if skipped_files > 0:
+            msg += f" (Skipped {skipped_files} files that were already indexed)."
+        return msg
+        
+    if skipped_files > 0:
+        return f"No new files to index. All {skipped_files} PDF(s) were already present in the system."
     
     return "No valid PDF files found in the folder."
 
